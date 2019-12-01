@@ -3,6 +3,7 @@
 ## Installation
 Install go compiler (https://golang.org/doc/install)
 ```
+go mod download
 go build
 ```
 ## Run
