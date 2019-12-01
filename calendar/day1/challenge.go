@@ -2,7 +2,6 @@ package day1
 
 import (
 	"bufio"
-	"errors"
 	"os"
 	"strconv"
 )
@@ -40,5 +39,11 @@ func (d *Day1) Part1() (string, error) {
 }
 
 func (d *Day1) Part2() (string, error) {
-	return "", errors.New("not implemented")
+	fuelRqmtSum := 0
+	for _, fuelRqmt := range d.fuelRqmts {
+		for modRqmt := (fuelRqmt / 3) - 2; modRqmt > 0; modRqmt = (modRqmt / 3) - 2 {
+			fuelRqmtSum += modRqmt
+		}
+	}
+	return strconv.Itoa(fuelRqmtSum), nil
 }
