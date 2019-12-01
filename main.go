@@ -76,7 +76,7 @@ func main() {
 				errMsg = row.error.Error()
 			}
 			table.Rich([]string{arg, row.label, row.result, errMsg, row.duration.String(), inclTime.String()}, []tablewriter.Colors{
-				{blockMod, fgColor},
+				{blockMod, blockFgColor},
 				{blockMod, fgColor},
 				{blockMod, fgColor},
 				{blockMod, fgColor},
