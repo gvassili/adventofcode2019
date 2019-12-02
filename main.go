@@ -55,19 +55,27 @@ func main() {
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgBlackColor, tablewriter.BgCyanColor},
 		tablewriter.Colors{tablewriter.Bold, tablewriter.FgBlackColor, tablewriter.BgCyanColor},
 	)
-	for idx, arg := range os.Args[1:] {
+	var challenges []calendar.DailyChallenge
+	if len(os.Args) > 1 {
+		for _, arg := range os.Args[1:] {
+			challenge, err := calendar.LoadChallenge(arg)
+			if err != nil {
+				panic(err)
+			}
+			challenges = append(challenges, challenge)
+		}
+	} else {
+		challenges = calendar.LoadAllChallenges()
+	}
+	for idx, challenge := range challenges {
 		blockFgColor := tablewriter.FgHiBlackColor
 		blockMod := tablewriter.Normal
 		if idx&1 == 1 {
 			blockFgColor = tablewriter.FgWhiteColor
 			blockMod = 2
 		}
-		challenge, err := calendar.LoadChallenge(arg)
-		if err != nil {
-			panic(err)
-		}
 		var inclTime time.Duration
-		for _, row := range runChallenge(challenge) {
+		for _, row := range runChallenge(challenge.Challenge) {
 			inclTime += row.duration
 			fgColor := blockFgColor
 			errMsg := ""
@@ -75,7 +83,7 @@ func main() {
 				fgColor = tablewriter.FgRedColor
 				errMsg = row.error.Error()
 			}
-			table.Rich([]string{arg, row.label, row.result, errMsg, row.duration.String(), inclTime.String()}, []tablewriter.Colors{
+			table.Rich([]string{challenge.Name, row.label, row.result, errMsg, row.duration.String(), inclTime.String()}, []tablewriter.Colors{
 				{blockMod, blockFgColor},
 				{blockMod, fgColor},
 				{blockMod, fgColor},
