@@ -9,7 +9,8 @@ import (
 )
 
 type Day2 struct {
-	byteCode []int
+	program []int
+	memory  []int
 }
 
 func (d *Day2) InputPath() string {
@@ -18,7 +19,7 @@ func (d *Day2) InputPath() string {
 
 func (d *Day2) Prepare(input *os.File) error {
 	scanner := bufio.NewScanner(input)
-	scanner.Split(func (data []byte, atEOF bool) (advance int, token []byte, err error) {
+	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
 			return 0, nil, nil
 		}
@@ -36,33 +37,46 @@ func (d *Day2) Prepare(input *os.File) error {
 		if err != nil {
 			return err
 		}
-		d.byteCode = append(d.byteCode, opCode)
+		d.program = append(d.program, opCode)
 	}
 	if err := scanner.Err(); err != nil {
 		return err
 	}
-d.byteCode[1] = 12
-d.byteCode[2] = 2
+	d.memory = make([]int, len(d.program))
 	return nil
 }
 
-func (d *Day2) Part1() (string, error) {
-	loop: for pc := 0; ; pc+=4 {
-		switch d.byteCode[pc] {
+func (d *Day2) runByteCode(noun int, verb int) int {
+	copy(d.memory, d.program)
+	d.memory[1] = noun
+	d.memory[2] = verb
+loop:
+	for pc := 0; ; pc += 4 {
+		switch d.memory[pc] {
 		case 1:
-			d.byteCode[d.byteCode[pc + 3]] = d.byteCode[d.byteCode[pc + 1]] + d.byteCode[d.byteCode[pc + 2]]
+			d.memory[d.memory[pc+3]] = d.memory[d.memory[pc+1]] + d.memory[d.memory[pc+2]]
 		case 2:
-			d.byteCode[d.byteCode[pc + 3]] = d.byteCode[d.byteCode[pc + 1]] * d.byteCode[d.byteCode[pc + 2]]
+			d.memory[d.memory[pc+3]] = d.memory[d.memory[pc+1]] * d.memory[d.memory[pc+2]]
 		default:
 			break loop
 		}
-		pc += 4
 	}
-	return strconv.Itoa(d.byteCode[0]), nil
+	return d.memory[0]
+}
+
+func (d *Day2) Part1() (string, error) {
+	d.runByteCode(12, 2)
+	return strconv.Itoa(d.memory[0]), nil
 }
 
 func (d *Day2) Part2() (string, error) {
-	return "", errors.New("todo")
+	for noun := 0; noun < 100; noun++ {
+		for verb := 0; verb < 100; verb++ {
+			res := d.runByteCode(noun, verb)
+			if res == 19690720 {
+				return strconv.Itoa(noun) + strconv.Itoa(verb), nil
+			}
+		}
+	}
+	return "", errors.New("could not find result")
 }
-
-
