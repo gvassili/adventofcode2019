@@ -144,6 +144,9 @@ func (d *Day3) Part2() (string, error) {
 	minDistance := math.MaxInt64
 	for _, seg1 := range wire1 {
 		for _, seg2 := range wire2 {
+			if seg1.totalSize+seg2.totalSize > minDistance {
+				break
+			}
 			if (seg1.dir&horizontal != 0) && (seg2.dir&vertical != 0) &&
 				(seg2.x1 > min(seg1.x1, seg1.x2) && seg2.x1 < max(seg1.x1, seg1.x2)) &&
 				(seg1.y1 > min(seg2.y1, seg2.y2) && seg1.y1 < max(seg2.y1, seg2.y2)) {
