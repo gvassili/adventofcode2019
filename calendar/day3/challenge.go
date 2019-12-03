@@ -3,7 +3,6 @@ package day3
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -23,12 +22,12 @@ const (
 )
 
 type segment struct {
-	x1   int
-	y1   int
-	x2   int
-	y2   int
-	size int
-	dir  direction
+	x1        int
+	y1        int
+	x2        int
+	y2        int
+	totalSize int
+	dir       direction
 }
 
 func (d direction) String() string {
@@ -59,6 +58,13 @@ func max(rhs int, lhs int) int {
 	return lhs
 }
 
+func abs(n int) int {
+	if n >= 0 {
+		return n
+	}
+	return n * -1
+}
+
 func (d *Day3) Prepare(input *os.File) error {
 	scanner := bufio.NewScanner(input)
 	for scanner.Scan() {
@@ -78,6 +84,7 @@ func (d *Day3) Prepare(input *os.File) error {
 		})
 		wire := make(wire, 0, 64)
 		x, y := 0, 0
+		totalSize := 0
 		for scanner.Scan() {
 			var dir direction
 			var size int
@@ -85,7 +92,8 @@ func (d *Day3) Prepare(input *os.File) error {
 			if _, err := fmt.Sscanf(segmentSchema, "%c%d", &dir, &size); err != nil {
 				return err
 			}
-			segment := segment{x, y, x, y, size, dir}
+			segment := segment{x, y, x, y, totalSize, dir}
+			totalSize += size
 			switch dir {
 			case 'R':
 				segment.x2 += size
@@ -102,12 +110,6 @@ func (d *Day3) Prepare(input *os.File) error {
 		if err := scanner.Err(); err != nil {
 			return err
 		}
-		for i, segment := range wire {
-			wire[i].x1 = min(segment.x1, segment.x2)
-			wire[i].x2 = max(segment.x1, segment.x2)
-			wire[i].y1 = min(segment.y1, segment.y2)
-			wire[i].y2 = max(segment.y1, segment.y2)
-		}
 		d.wires = append(d.wires, wire)
 	}
 	if err := scanner.Err(); err != nil {
@@ -122,13 +124,13 @@ func (d *Day3) Part1() (string, error) {
 	for _, seg1 := range wire1 {
 		for _, seg2 := range wire2 {
 			if (seg1.dir&horizontal != 0) && (seg2.dir&vertical != 0) &&
-				(seg2.x1 > seg1.x1 && seg2.x1 < seg1.x2) &&
-				(seg1.y1 > seg2.y1 && seg1.y1 < seg2.y2) {
+				(seg2.x1 > min(seg1.x1, seg1.x2) && seg2.x1 < max(seg1.x1, seg1.x2)) &&
+				(seg1.y1 > min(seg2.y1, seg2.y2) && seg1.y1 < max(seg2.y1, seg2.y2)) {
 				distance := seg2.x1 + seg1.y1
 				minDistance = min(minDistance, distance)
 			} else if (seg1.dir&vertical != 0) && (seg2.dir&horizontal != 0) &&
-				(seg1.x1 > seg2.x1 && seg1.x1 < seg2.x2) &&
-				(seg2.y1 > seg1.y1 && seg2.y1 < seg1.y2) {
+				(seg1.x1 > min(seg2.x1, seg2.x2) && seg1.x1 < max(seg2.x1, seg2.x2)) &&
+				(seg2.y1 > min(seg1.y1, seg1.y2) && seg2.y1 < max(seg1.y1, seg1.y2)) {
 				distance := seg1.x1 + seg2.y1
 				minDistance = min(minDistance, distance)
 			}
@@ -138,5 +140,22 @@ func (d *Day3) Part1() (string, error) {
 }
 
 func (d *Day3) Part2() (string, error) {
-	return "", errors.New("todo")
+	wire1, wire2 := d.wires[0], d.wires[1]
+	minDistance := math.MaxInt64
+	for _, seg1 := range wire1 {
+		for _, seg2 := range wire2 {
+			if (seg1.dir&horizontal != 0) && (seg2.dir&vertical != 0) &&
+				(seg2.x1 > min(seg1.x1, seg1.x2) && seg2.x1 < max(seg1.x1, seg1.x2)) &&
+				(seg1.y1 > min(seg2.y1, seg2.y2) && seg1.y1 < max(seg2.y1, seg2.y2)) {
+				distance := seg2.totalSize + seg1.totalSize + abs(seg1.x1-seg2.x1) + abs(seg2.y1-seg1.y1)
+				minDistance = min(minDistance, distance)
+			} else if (seg1.dir&vertical != 0) && (seg2.dir&horizontal != 0) &&
+				(seg1.x1 > min(seg2.x1, seg2.x2) && seg1.x1 < max(seg2.x1, seg2.x2)) &&
+				(seg2.y1 > min(seg1.y1, seg2.y2) && seg2.y1 < max(seg1.y1, seg1.y2)) {
+				distance := seg2.totalSize + seg1.totalSize + abs(seg2.x1-seg1.x1) + abs(seg1.y1-seg2.y1)
+				minDistance = min(minDistance, distance)
+			}
+		}
+	}
+	return strconv.Itoa(minDistance), nil
 }
