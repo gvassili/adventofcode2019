@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -27,7 +28,20 @@ type segment struct {
 	x2        int
 	y2        int
 	totalSize int
+	distance  int
 	dir       direction
+}
+
+func (w wire) Less(i, j int) bool {
+	return w[i].distance < w[j].distance
+}
+
+func (w wire) Swap(i, j int) {
+	w[i], w[j] = w[j], w[i]
+}
+
+func (w wire) Len() int {
+	return len(w)
 }
 
 func (d direction) String() string {
@@ -92,7 +106,7 @@ func (d *Day3) Prepare(input *os.File) error {
 			if _, err := fmt.Sscanf(segmentSchema, "%c%d", &dir, &size); err != nil {
 				return err
 			}
-			segment := segment{x, y, x, y, totalSize, dir}
+			segment := segment{x, y, x, y, totalSize, x + y, dir}
 			totalSize += size
 			switch dir {
 			case 'R':
@@ -119,10 +133,21 @@ func (d *Day3) Prepare(input *os.File) error {
 }
 
 func (d *Day3) Part1() (string, error) {
-	wire1, wire2 := d.wires[0], d.wires[1]
+	wire1 := make(wire, len(d.wires[0]))
+	wire2 := make(wire, len(d.wires[1]))
+	copy(wire1, d.wires[0])
+	copy(wire2, d.wires[1])
 	minDistance := math.MaxInt64
+	sort.Sort(wire1)
+	sort.Sort(wire2)
 	for _, seg1 := range wire1 {
+		if seg1.distance > minDistance {
+			break
+		}
 		for _, seg2 := range wire2 {
+			if seg2.distance > minDistance {
+				break
+			}
 			if (seg1.dir&horizontal != 0) && (seg2.dir&vertical != 0) &&
 				(seg2.x1 > min(seg1.x1, seg1.x2) && seg2.x1 < max(seg1.x1, seg1.x2)) &&
 				(seg1.y1 > min(seg2.y1, seg2.y2) && seg1.y1 < max(seg2.y1, seg2.y2)) {
