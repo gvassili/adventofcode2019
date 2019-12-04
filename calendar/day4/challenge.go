@@ -1,7 +1,6 @@
 package day4
 
 import (
-	"errors"
 	"os"
 	"strconv"
 )
@@ -88,6 +87,52 @@ func (d *Day4) Part1() (string, error) {
 	return strconv.Itoa(count), nil
 }
 
+func countAdj(password password, nb int8, i int) (int, int) {
+	if i < 0 || password[i] != nb {
+		return 0, i
+	}
+	count, idx := countAdj(password, nb, i-1)
+	return count + 1, idx
+}
+
+func recinc2(password password, i int) {
+	password[i]++
+	if password[i] > 9 {
+		recinc2(password, i-1)
+		password[i] = password[i-1]
+	}
+}
+
+func computeSimilarity2(password password) int {
+	similarity := 0
+	for i := len(password) - 1; i > 0; {
+		count, idx := countAdj(password, password[i], i)
+		if count == 2 {
+			similarity |= 1 << i
+		}
+		i = idx
+	}
+	return similarity
+}
+
 func (d *Day4) Part2() (string, error) {
-	return "", errors.New("todo")
+	password := make(password, len(d.minRange))
+	count := 0
+	copy(password, d.minRange)
+	similarity := 0
+	if similarity != 0 {
+		count += 1
+	}
+	for {
+		recinc2(password, len(password)-1)
+		similarity = computeSimilarity2(password)
+		if cmpPassword(password, d.maxRange) > 0 {
+			break
+		}
+		if similarity == 0 {
+		} else {
+			count += 1
+		}
+	}
+	return strconv.Itoa(count), nil
 }
