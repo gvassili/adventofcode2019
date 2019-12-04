@@ -16,13 +16,18 @@ type result struct {
 }
 
 func runChallenge(challenge code_advent.Challengeable) []result {
-	file, err := os.Open("./" + challenge.InputPath())
-	if err != nil {
-		return []result{{"prepare", "", err, 0}}
+	filepath := challenge.InputPath()
+	var input *os.File
+	if filepath != "" {
+		file, err := os.Open("./" + challenge.InputPath())
+		if err != nil {
+			return []result{{"prepare", "", err, 0}}
+		}
+		defer file.Close()
+		input = file
 	}
-	defer file.Close()
 	startTs := time.Now()
-	if err := challenge.Prepare(file); err != nil {
+	if err := challenge.Prepare(input); err != nil {
 		return []result{{"prepare", "", err, time.Now().Sub(startTs)}}
 	}
 	prepareTs := time.Now()
