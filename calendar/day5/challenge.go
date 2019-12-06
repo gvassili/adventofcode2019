@@ -3,7 +3,6 @@ package day5
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -12,6 +11,7 @@ import (
 type Day5 struct {
 	program []int
 	memory  []int
+	pc      int
 }
 
 const (
@@ -19,6 +19,10 @@ const (
 	OpMul = 2
 	OpInp = 3
 	OpOut = 4
+	OpJnz = 5
+	OpJz  = 6
+	OpLt  = 7
+	OpE   = 8
 	OpRet = 99
 )
 
@@ -56,8 +60,13 @@ func (d *Day5) Prepare(input *os.File) error {
 }
 
 func (d *Day5) getValue(pc int, pmode int, offset int) int {
-	for i := offset; i > 1; i-- {
-		pmode /= 10
+	if pmode != 0 {
+		switch offset {
+		case 2:
+			pmode /= 10
+		case 3:
+			pmode /= 100
+		}
 	}
 	if pmode&1 == 1 {
 		return d.memory[pc+offset]
@@ -70,26 +79,56 @@ func (d *Day5) runByteCode(input []int) (int, error) {
 	copy(d.memory, d.program)
 	output := 0
 loop:
-	for pc := 0; ; {
-		instruction := d.memory[pc]
+	for d.pc = 0; ; {
+		instruction := d.memory[d.pc]
 		opcode := instruction % 100
 		pmode := instruction / 100
 		switch opcode {
 		case OpAdd:
-			p1, p2, p3 := d.getValue(pc, pmode, 1), d.getValue(pc, pmode, 2), d.memory[pc+3]
+			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
 			d.memory[p3] = p1 + p2
-			pc += 4
+			d.pc += 4
 		case OpMul:
-			p1, p2, p3 := d.getValue(pc, pmode, 1), d.getValue(pc, pmode, 2), d.memory[pc+3]
+			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
 			d.memory[p3] = p1 * p2
-			pc += 4
+			d.pc += 4
 		case OpInp:
-			d.memory[d.memory[pc+1]] = input[0]
+			d.memory[d.memory[d.pc+1]] = input[0]
 			input = input[1:]
-			pc += 2
+			d.pc += 2
 		case OpOut:
-			output = d.getValue(pc, pmode, 1)
-			pc += 2
+			output = d.getValue(d.pc, pmode, 1)
+			d.pc += 2
+		case OpJnz:
+			p1, p2 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2) //d.memory[d.pc+2]
+			if p1 != 0 {
+				d.pc = p2
+			} else {
+				d.pc += 3
+			}
+		case OpJz:
+			p1, p2 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2) //d.memory[d.pc+2]
+			if p1 == 0 {
+				d.pc = p2
+			} else {
+				d.pc += 3
+			}
+		case OpLt:
+			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
+			if p1 < p2 {
+				d.memory[p3] = 1
+			} else {
+				d.memory[p3] = 0
+			}
+			d.pc += 4
+		case OpE:
+			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
+			if p1 == p2 {
+				d.memory[p3] = 1
+			} else {
+				d.memory[p3] = 0
+			}
+			d.pc += 4
 		case OpRet:
 			break loop
 		default:
@@ -105,5 +144,6 @@ func (d *Day5) Part1() (string, error) {
 }
 
 func (d *Day5) Part2() (string, error) {
-	return "", errors.New("todo")
+	result, err := d.runByteCode([]int{5})
+	return strconv.Itoa(result), err
 }
