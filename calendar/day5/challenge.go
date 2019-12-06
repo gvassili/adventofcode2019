@@ -19,7 +19,7 @@ const (
 	OpMul = 2
 	OpInp = 3
 	OpOut = 4
-	OpExt = 99
+	OpRet = 99
 )
 
 func (d Day5) InputPath() string {
@@ -90,7 +90,7 @@ loop:
 		case OpOut:
 			output = d.getValue(pc, pmode, 1)
 			pc += 2
-		case OpExt:
+		case OpRet:
 			break loop
 		default:
 			return 0, fmt.Errorf("invalid opcode %d", opcode)
