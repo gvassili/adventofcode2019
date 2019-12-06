@@ -2,7 +2,6 @@ package day6
 
 import (
 	"bufio"
-	"errors"
 	"os"
 	"strconv"
 	"strings"
@@ -11,7 +10,9 @@ import (
 type system map[string]*planet
 
 type planet struct {
-	orbit *planet
+	orbit    *planet
+	moons    []*planet
+	distance int
 }
 
 type Day6 struct {
@@ -35,11 +36,11 @@ func (d *Day6) Prepare(input *os.File) error {
 			d.system[orbitedName] = orbited
 		}
 		if orbiter == nil {
-			orbiter = &planet{orbited}
+			orbiter = &planet{}
 			d.system[orbiterName] = orbiter
-		} else {
-			orbiter.orbit = orbited
 		}
+		orbited.moons = append(orbited.moons, orbiter)
+		orbiter.orbit = orbited
 	}
 	if err := scanner.Err(); err != nil {
 		return err
@@ -62,6 +63,21 @@ func (d *Day6) Part1() (string, error) {
 	return strconv.Itoa(checkSum), nil
 }
 
+func planetDistance(planet *planet, distance int) {
+	if planet.distance != 0 && planet.distance < distance {
+		return
+	}
+	planet.distance = distance
+	for _, moon := range planet.moons {
+		planetDistance(moon, distance+1)
+	}
+	if planet.orbit != nil {
+		planetDistance(planet.orbit, distance+1)
+	}
+}
+
 func (d *Day6) Part2() (string, error) {
-	return "", errors.New("todo")
+	planetDistance(d.system["YOU"], -1)
+	sanPlanet := d.system["SAN"]
+	return strconv.Itoa(sanPlanet.orbit.distance), nil
 }
