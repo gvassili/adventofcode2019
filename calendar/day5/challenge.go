@@ -15,15 +15,15 @@ type Day5 struct {
 }
 
 const (
-	OpAdd = 1
-	OpMul = 2
-	OpInp = 3
-	OpOut = 4
-	OpJnz = 5
-	OpJz  = 6
-	OpLt  = 7
-	OpE   = 8
-	OpRet = 99
+	opAdd = 1
+	opMul = 2
+	opInp = 3
+	opOut = 4
+	opJnz = 5
+	opJz  = 6
+	opLt  = 7
+	opE   = 8
+	opRet = 99
 )
 
 func (d Day5) InputPath() string {
@@ -84,36 +84,36 @@ loop:
 		opcode := instruction % 100
 		pmode := instruction / 100
 		switch opcode {
-		case OpAdd:
+		case opAdd:
 			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
 			d.memory[p3] = p1 + p2
 			d.pc += 4
-		case OpMul:
+		case opMul:
 			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
 			d.memory[p3] = p1 * p2
 			d.pc += 4
-		case OpInp:
+		case opInp:
 			d.memory[d.memory[d.pc+1]] = input[0]
 			input = input[1:]
 			d.pc += 2
-		case OpOut:
+		case opOut:
 			output = d.getValue(d.pc, pmode, 1)
 			d.pc += 2
-		case OpJnz:
+		case opJnz:
 			p1, p2 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2) //d.memory[d.pc+2]
 			if p1 != 0 {
 				d.pc = p2
 			} else {
 				d.pc += 3
 			}
-		case OpJz:
+		case opJz:
 			p1, p2 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2) //d.memory[d.pc+2]
 			if p1 == 0 {
 				d.pc = p2
 			} else {
 				d.pc += 3
 			}
-		case OpLt:
+		case opLt:
 			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
 			if p1 < p2 {
 				d.memory[p3] = 1
@@ -121,7 +121,7 @@ loop:
 				d.memory[p3] = 0
 			}
 			d.pc += 4
-		case OpE:
+		case opE:
 			p1, p2, p3 := d.getValue(d.pc, pmode, 1), d.getValue(d.pc, pmode, 2), d.memory[d.pc+3]
 			if p1 == p2 {
 				d.memory[p3] = 1
@@ -129,7 +129,7 @@ loop:
 				d.memory[p3] = 0
 			}
 			d.pc += 4
-		case OpRet:
+		case opRet:
 			break loop
 		default:
 			return 0, fmt.Errorf("invalid opcode %d", opcode)
