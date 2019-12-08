@@ -27,7 +27,7 @@ const (
 )
 
 func (d Day5) InputPath() string {
-	return "/calendar/day5/input"
+	return "calendar/day5/input"
 }
 
 func (d *Day5) Prepare(input *os.File) error {

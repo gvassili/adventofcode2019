@@ -14,7 +14,7 @@ type Day2 struct {
 }
 
 func (d *Day2) InputPath() string {
-	return "/calendar/day2/input"
+	return "calendar/day2/input"
 }
 
 func (d *Day2) Prepare(input *os.File) error {
