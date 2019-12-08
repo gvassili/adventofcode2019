@@ -1,6 +1,8 @@
 package day7
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	opAdd = 1
@@ -41,9 +43,8 @@ func (c *intcodeComputer) getValue(pmode int, offset int) int {
 	}
 }
 
-func (c *intcodeComputer) exec(input []int) (int, error) {
+func (c *intcodeComputer) exec(inC <-chan int, outC chan<- int) error {
 	copy(c.mem, c.intcode)
-	output := 0
 loop:
 	for c.pc = 0; ; {
 		instruction := c.mem[c.pc]
@@ -59,11 +60,12 @@ loop:
 			c.mem[p3] = p1 * p2
 			c.pc += 4
 		case opInp:
-			c.mem[c.mem[c.pc+1]] = input[0]
-			input = input[1:]
+			input := <-inC
+			c.mem[c.mem[c.pc+1]] = input
 			c.pc += 2
 		case opOut:
-			output = c.getValue(pmode, 1)
+			output := c.getValue(pmode, 1)
+			outC <- output
 			c.pc += 2
 		case opJnz:
 			p1, p2 := c.getValue(pmode, 1), c.getValue(pmode, 2)
@@ -98,8 +100,8 @@ loop:
 		case opRet:
 			break loop
 		default:
-			return 0, fmt.Errorf("invalid opcode %d", opcode)
+			return fmt.Errorf("invalid opcode %d", opcode)
 		}
 	}
-	return output, nil
+	return nil
 }

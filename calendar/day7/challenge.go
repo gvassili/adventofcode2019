@@ -3,7 +3,6 @@ package day7
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"os"
 	"runtime"
 	"strconv"
@@ -77,8 +76,8 @@ func permutate(seq sequence, output chan sequence) {
 }
 
 func (d *Day7) Part1() (string, error) {
-	permsC := make(chan sequence, 32)
-	resultC := make(chan int, 32)
+	permsC := make(chan sequence, 1)
+	resultC := make(chan int, 1)
 	var wg sync.WaitGroup
 	go func() {
 		permutate(sequence{0, 1, 2, 3, 4}, permsC)
@@ -87,20 +86,26 @@ func (d *Day7) Part1() (string, error) {
 	for i := 0; i < runtime.NumCPU(); i++ {
 		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			for seq := range permsC {
-				outSig := 0
 				var computer intcodeComputer
 				computer.init(d.program)
-				for _, inSig := range seq {
-					r, err := computer.exec([]int{inSig, outSig})
+				ioC := make([]chan int, len(seq))
+				for idx, sig := range seq {
+					c := make(chan int, 2)
+					c <- sig
+					ioC[idx] = c
+				}
+				ioC[0] <- 0
+				for idx := range seq {
+					err := computer.exec(ioC[idx], ioC[(idx+1)%len(seq)])
 					if err != nil {
 						panic(err)
 					}
-					outSig = r
 				}
-				resultC <- outSig
+				lastSig := <-ioC[0]
+				resultC <- lastSig
 			}
-			wg.Done()
 		}()
 	}
 	go func() {
@@ -115,5 +120,51 @@ func (d *Day7) Part1() (string, error) {
 }
 
 func (d *Day7) Part2() (string, error) {
-	return "", errors.New("todo")
+	permsC := make(chan sequence, 1)
+	resultC := make(chan int, 1)
+	var wg sync.WaitGroup
+	go func() {
+		permutate(sequence{5, 6, 7, 8, 9}, permsC)
+		close(permsC)
+	}()
+	for i := 0; i < 2; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for seq := range permsC {
+				ioC := make([]chan int, len(seq))
+				for idx, sig := range seq {
+					c := make(chan int, 16)
+					c <- sig
+					ioC[idx] = c
+				}
+				ioC[0] <- 0
+				var wg sync.WaitGroup
+				for idx := range seq {
+					wg.Add(1)
+					go func(pid int) {
+						var computer intcodeComputer
+						computer.init(d.program)
+						defer wg.Done()
+						err := computer.exec(ioC[pid], ioC[(pid+1)%len(seq)])
+						if err != nil {
+							panic(err)
+						}
+					}(idx)
+				}
+				wg.Wait()
+				lastSig := <-ioC[0]
+				resultC <- lastSig
+			}
+		}()
+	}
+	go func() {
+		wg.Wait()
+		close(resultC)
+	}()
+	maxThrust := 0
+	for r := range resultC {
+		maxThrust = max(maxThrust, r)
+	}
+	return strconv.Itoa(maxThrust), nil
 }
