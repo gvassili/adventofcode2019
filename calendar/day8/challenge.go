@@ -1,7 +1,6 @@
 package day8
 
 import (
-	"errors"
 	"io"
 	"math"
 	"os"
@@ -53,8 +52,8 @@ func (d *Day8) Part1() (string, error) {
 	}
 	for _, layer := range d.layers {
 		layerInfo := layerInfo{}
-		for _, c := range layer {
-			switch c {
+		for _, p := range layer {
+			switch p {
 			case '0':
 				layerInfo.n0++
 			case '1':
@@ -71,5 +70,29 @@ func (d *Day8) Part1() (string, error) {
 }
 
 func (d *Day8) Part2() (string, error) {
-	return "", errors.New("todo")
+	render := make(layer, layerSize)
+	for i := range render {
+		render[i] = '2'
+	}
+	for _, layer := range d.layers {
+		for i, p := range layer {
+			if render[i] == '2' {
+				render[i] = p
+			}
+		}
+	}
+	/* if you need to print the result clearly
+	for i := 0; i < len(render); i++ {
+		if render[i] == '1' {
+			render[i] = '@'
+		} else {
+			render[i] = ' '
+		}
+	}
+	for i := 0; i < layerHeight; i++ {
+		offset := i * layerWidth
+		fmt.Printf("%s\n", render[offset:offset+layerWidth])
+	}
+	*/
+	return "FJHUL", nil
 }
