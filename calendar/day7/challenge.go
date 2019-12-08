@@ -127,18 +127,17 @@ func (d *Day7) Part2() (string, error) {
 		permutate(sequence{5, 6, 7, 8, 9}, permsC)
 		close(permsC)
 	}()
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 4; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for seq := range permsC {
 				ioC := make([]chan int, len(seq))
 				for idx, sig := range seq {
-					c := make(chan int, 16)
+					c := make(chan int, 1)
 					c <- sig
 					ioC[idx] = c
 				}
-				ioC[0] <- 0
 				var wg sync.WaitGroup
 				for idx := range seq {
 					wg.Add(1)
@@ -152,6 +151,7 @@ func (d *Day7) Part2() (string, error) {
 						}
 					}(idx)
 				}
+				ioC[0] <- 0
 				wg.Wait()
 				lastSig := <-ioC[0]
 				resultC <- lastSig
