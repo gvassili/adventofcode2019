@@ -3,7 +3,6 @@ package day9
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"os"
 	"strconv"
 )
@@ -54,5 +53,8 @@ func (d *Day9) Part1() (string, error) {
 }
 
 func (d *Day9) Part2() (string, error) {
-	return "", errors.New("todo")
+	inC, outC := make(chan int, 1), make(chan int, 1)
+	inC <- 2
+	d.computer.exec(inC, outC)
+	return strconv.Itoa(<-outC), nil
 }
