@@ -1,7 +1,7 @@
 package day4
 
 import (
-	"os"
+	"io"
 	"strconv"
 )
 
@@ -16,7 +16,7 @@ func (d Day4) InputPath() string {
 
 type password []int8
 
-func (d *Day4) Prepare(input *os.File) error {
+func (d *Day4) Prepare(input io.Reader) error {
 	d.minRange = password{1, 6, 8, 8, 8, 8}
 	d.maxRange = password{7, 1, 8, 0, 9, 8}
 	return nil

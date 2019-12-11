@@ -63,7 +63,6 @@ func (c *intcodeComputer) write(value int) {
 func (c *intcodeComputer) next() int {
 	i := c.pc
 	c.pc++
-	//fmt.Printf("    pc %d->%d\n", i, c.pc)
 	return i
 }
 

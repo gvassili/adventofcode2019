@@ -3,7 +3,6 @@ package day8
 import (
 	"io"
 	"math"
-	"os"
 	"strconv"
 )
 
@@ -23,7 +22,7 @@ func (d Day8) InputPath() string {
 	return "calendar/day8/input"
 }
 
-func (d *Day8) Prepare(input *os.File) error {
+func (d *Day8) Prepare(input io.Reader) error {
 readLayers:
 	for {
 		pxRead := 0

@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"math"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -79,7 +79,7 @@ func abs(n int) int {
 	return n * -1
 }
 
-func (d *Day3) Prepare(input *os.File) error {
+func (d *Day3) Prepare(input io.Reader) error {
 	scanner := bufio.NewScanner(input)
 	for scanner.Scan() {
 		wireSchema := scanner.Text()

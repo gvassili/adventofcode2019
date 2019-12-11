@@ -2,7 +2,7 @@ package day6
 
 import (
 	"bufio"
-	"os"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -23,7 +23,7 @@ func (d Day6) InputPath() string {
 	return "calendar/day6/input"
 }
 
-func (d *Day6) Prepare(input *os.File) error {
+func (d *Day6) Prepare(input io.Reader) error {
 	scanner := bufio.NewScanner(input)
 	d.system = make(system, 256)
 	for scanner.Scan() {

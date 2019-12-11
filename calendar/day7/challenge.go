@@ -3,7 +3,7 @@ package day7
 import (
 	"bufio"
 	"bytes"
-	"os"
+	"io"
 	"runtime"
 	"strconv"
 	"sync"
@@ -17,7 +17,7 @@ func (d Day7) InputPath() string {
 	return "calendar/day7/input"
 }
 
-func (d *Day7) Prepare(input *os.File) error {
+func (d *Day7) Prepare(input io.Reader) error {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {

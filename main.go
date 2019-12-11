@@ -15,7 +15,7 @@ type result struct {
 	duration time.Duration
 }
 
-func runChallenge(challenge code_advent.Challengeable) []result {
+func runChallenge(challenge code_advent.Challenger) []result {
 	filepath := challenge.InputPath()
 	var input *os.File
 	if filepath != "" {

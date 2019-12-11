@@ -1,10 +1,12 @@
 package code_advent
 
-import "os"
+import (
+	"io"
+)
 
-type Challengeable interface {
+type Challenger interface {
 	InputPath() string
-	Prepare(input *os.File) error
+	Prepare(input io.Reader) error
 	Part1() (string, error)
 	Part2() (string, error)
 }

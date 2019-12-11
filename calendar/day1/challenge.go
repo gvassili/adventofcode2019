@@ -2,7 +2,7 @@ package day1
 
 import (
 	"bufio"
-	"os"
+	"io"
 	"strconv"
 )
 
@@ -14,7 +14,7 @@ func (d *Day1) InputPath() string {
 	return "calendar/day1/input"
 }
 
-func (d *Day1) Prepare(input *os.File) error {
+func (d *Day1) Prepare(input io.Reader) error {
 	scanner := bufio.NewScanner(input)
 	for scanner.Scan() {
 		fuelRqmt, err := strconv.Atoi(scanner.Text())

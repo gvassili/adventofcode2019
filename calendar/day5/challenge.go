@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"os"
+	"io"
 	"strconv"
 )
 
@@ -30,7 +30,7 @@ func (d Day5) InputPath() string {
 	return "calendar/day5/input"
 }
 
-func (d *Day5) Prepare(input *os.File) error {
+func (d *Day5) Prepare(input io.Reader) error {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {

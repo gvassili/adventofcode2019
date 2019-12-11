@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"os"
+	"io"
 	"strconv"
 )
 
@@ -17,7 +17,7 @@ func (d *Day2) InputPath() string {
 	return "calendar/day2/input"
 }
 
-func (d *Day2) Prepare(input *os.File) error {
+func (d *Day2) Prepare(input io.Reader) error {
 	scanner := bufio.NewScanner(input)
 	scanner.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {
