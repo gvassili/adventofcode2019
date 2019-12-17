@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gvassili/adventofcode2019/calendar/day1"
 	"github.com/gvassili/adventofcode2019/calendar/day10"
+	"github.com/gvassili/adventofcode2019/calendar/day11"
 	"github.com/gvassili/adventofcode2019/calendar/day2"
 	"github.com/gvassili/adventofcode2019/calendar/day3"
 	"github.com/gvassili/adventofcode2019/calendar/day4"
@@ -26,6 +27,7 @@ var challenges = map[string]func() code_advent.Challenger{
 	"day8":  func() code_advent.Challenger { return &day8.Day8{} },
 	"day9":  func() code_advent.Challenger { return &day9.Day9{} },
 	"day10": func() code_advent.Challenger { return &day10.Day10{} },
+	"day11": func() code_advent.Challenger { return &day11.Day11{} },
 }
 
 func LoadChallenge(name string) (DailyChallenge, error) {
