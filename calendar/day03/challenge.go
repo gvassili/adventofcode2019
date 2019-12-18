@@ -1,4 +1,4 @@
-package day3
+package day03
 
 import (
 	"bufio"
@@ -55,7 +55,7 @@ type Day3 struct {
 }
 
 func (d Day3) InputPath() string {
-	return "calendar/day3/input"
+	return "calendar/day03/input"
 }
 
 func min(rhs int, lhs int) int {

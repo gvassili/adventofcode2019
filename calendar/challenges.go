@@ -2,32 +2,34 @@ package calendar
 
 import (
 	"errors"
-	"github.com/gvassili/adventofcode2019/calendar/day1"
+	"github.com/gvassili/adventofcode2019/calendar/day01"
+	"github.com/gvassili/adventofcode2019/calendar/day02"
+	"github.com/gvassili/adventofcode2019/calendar/day03"
+	"github.com/gvassili/adventofcode2019/calendar/day04"
+	"github.com/gvassili/adventofcode2019/calendar/day05"
+	"github.com/gvassili/adventofcode2019/calendar/day06"
+	"github.com/gvassili/adventofcode2019/calendar/day07"
+	"github.com/gvassili/adventofcode2019/calendar/day08"
+	"github.com/gvassili/adventofcode2019/calendar/day09"
 	"github.com/gvassili/adventofcode2019/calendar/day10"
 	"github.com/gvassili/adventofcode2019/calendar/day11"
-	"github.com/gvassili/adventofcode2019/calendar/day2"
-	"github.com/gvassili/adventofcode2019/calendar/day3"
-	"github.com/gvassili/adventofcode2019/calendar/day4"
-	"github.com/gvassili/adventofcode2019/calendar/day5"
-	"github.com/gvassili/adventofcode2019/calendar/day6"
-	"github.com/gvassili/adventofcode2019/calendar/day7"
-	"github.com/gvassili/adventofcode2019/calendar/day8"
-	"github.com/gvassili/adventofcode2019/calendar/day9"
+	"github.com/gvassili/adventofcode2019/calendar/day12"
 	"github.com/gvassili/adventofcode2019/code_advent"
 )
 
 var challenges = map[string]func() code_advent.Challenger{
-	"day1":  func() code_advent.Challenger { return &day1.Day1{} },
-	"day2":  func() code_advent.Challenger { return &day2.Day2{} },
-	"day3":  func() code_advent.Challenger { return &day3.Day3{} },
-	"day4":  func() code_advent.Challenger { return &day4.Day4{} },
-	"day5":  func() code_advent.Challenger { return &day5.Day5{} },
-	"day6":  func() code_advent.Challenger { return &day6.Day6{} },
-	"day7":  func() code_advent.Challenger { return &day7.Day7{} },
-	"day8":  func() code_advent.Challenger { return &day8.Day8{} },
-	"day9":  func() code_advent.Challenger { return &day9.Day9{} },
+	"day01": func() code_advent.Challenger { return &day01.Day1{} },
+	"day02": func() code_advent.Challenger { return &day02.Day2{} },
+	"day03": func() code_advent.Challenger { return &day03.Day3{} },
+	"day04": func() code_advent.Challenger { return &day04.Day4{} },
+	"day05": func() code_advent.Challenger { return &day05.Day5{} },
+	"day06": func() code_advent.Challenger { return &day06.Day6{} },
+	"day07": func() code_advent.Challenger { return &day07.Day7{} },
+	"day08": func() code_advent.Challenger { return &day08.Day8{} },
+	"day09": func() code_advent.Challenger { return &day09.Day9{} },
 	"day10": func() code_advent.Challenger { return &day10.Day10{} },
 	"day11": func() code_advent.Challenger { return &day11.Day11{} },
+	"day12": func() code_advent.Challenger { return &day12.Day12{} },
 }
 
 func LoadChallenge(name string) (DailyChallenge, error) {

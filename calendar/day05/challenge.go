@@ -1,4 +1,4 @@
-package day5
+package day05
 
 import (
 	"bufio"
@@ -27,7 +27,7 @@ const (
 )
 
 func (d Day5) InputPath() string {
-	return "calendar/day5/input"
+	return "calendar/day05/input"
 }
 
 func (d *Day5) Prepare(input io.Reader) error {

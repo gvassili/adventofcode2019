@@ -1,4 +1,4 @@
-package day7
+package day07
 
 import (
 	"bufio"
@@ -14,7 +14,7 @@ type Day7 struct {
 }
 
 func (d Day7) InputPath() string {
-	return "calendar/day7/input"
+	return "calendar/day07/input"
 }
 
 func (d *Day7) Prepare(input io.Reader) error {
