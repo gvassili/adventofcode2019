@@ -15,6 +15,7 @@ import (
 	"github.com/gvassili/adventofcode2019/calendar/day11"
 	"github.com/gvassili/adventofcode2019/calendar/day12"
 	"github.com/gvassili/adventofcode2019/code_advent"
+	"sort"
 )
 
 var challenges = map[string]func() code_advent.Challenger{
@@ -46,9 +47,14 @@ type DailyChallenge struct {
 }
 
 func LoadAllChallenges() []DailyChallenge {
+	challengeNames := make([]string, 0, len(challenges))
+	for name := range challenges {
+		challengeNames = append(challengeNames, name)
+	}
+	sort.Strings(challengeNames)
 	result := make([]DailyChallenge, 0, len(challenges))
-	for name, loader := range challenges {
-		result = append(result, DailyChallenge{loader(), name})
+	for _, name := range challengeNames {
+		result = append(result, DailyChallenge{challenges[name](), name})
 	}
 	return result
 }
