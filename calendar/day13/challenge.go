@@ -45,57 +45,105 @@ func (d *Day13) Prepare(input io.Reader) error {
 	return nil
 }
 
-type tileType int
+type insType int
 
 const (
-	emptyTile tileType = iota
+	emptyTile insType = iota
 	wallTile
 	blockTile
-	horizontalPaddleTile
+	paddleTile
 	ballTile
+	setScore
 )
 
-type input struct {
+type output struct {
 	x    int
 	y    int
-	tile tileType
+	tile insType
 }
 
-func (d Day13) Part1() (string, error) {
-	inputsC := make(chan input, 1)
+func runGame(computer intcodeComputer, inC <-chan int) <-chan output {
+	inputsC := make(chan output, 1)
 	go func() {
 		outC := make(chan int, 3)
 		go func() {
-			d.computer.exec(nil, outC)
+			computer.exec(inC, outC)
 			close(outC)
 		}()
-		var input input
+		var input output
 		offset := 0
-		for inst := range outC {
+		for ins := range outC {
 			switch offset & 0x03 {
 			case 0:
-				input.x = inst
+				input.x = ins
 				offset = 1
 			case 1:
-				input.y = inst
+				input.y = ins
 				offset = 2
 			case 2:
-				input.tile = tileType(inst)
+				if input.x == -1 && input.y == 0 {
+					input.x = ins
+					input.tile = setScore
+				} else {
+					input.tile = insType(ins)
+				}
 				inputsC <- input
 				offset = 0
 			}
 		}
 		close(inputsC)
 	}()
+	return inputsC
+}
+
+func (d Day13) Part1() (string, error) {
+	outputC := runGame(d.computer, nil)
 	blockTileCount := 0
-	for in := range inputsC {
-		if in.tile == blockTile {
+	for inst := range outputC {
+		if inst.tile == blockTile {
 			blockTileCount++
 		}
 	}
 	return strconv.Itoa(blockTileCount), nil
 }
 
+func clamp(n int, min int, max int) int {
+	if n < min {
+		return min
+	} else if n > max {
+		return max
+	}
+	return n
+}
+
 func (d Day13) Part2() (string, error) {
-	return "", nil
+	computer := d.computer
+	computer.intcode[0] = 2
+	inC := make(chan int, 10)
+	outputC := runGame(d.computer, inC)
+	score := 0
+	step := 0
+	var ball, paddle output
+	for ins := range outputC {
+		switch ins.tile {
+		case ballTile:
+			ball = ins
+			step |= 0b01
+		case paddleTile:
+			paddle = ins
+			step |= 0b10
+		case setScore:
+			score = ins.x
+		}
+		if step == 0b11 {
+			input := clamp(ball.x-paddle.x, -1, 1)
+			if input == 0 {
+				step = 0b10
+			} else {
+				step = 0
+			}
+			inC <- input
+		}
+	}
+	return strconv.Itoa(score), nil
 }
