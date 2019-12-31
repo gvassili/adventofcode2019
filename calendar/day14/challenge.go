@@ -2,9 +2,9 @@ package day14
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -59,24 +59,48 @@ func (d *Day14) Prepare(input io.Reader) error {
 	return nil
 }
 
+func (d *Day14) buildFuel(amount int) int {
+	storage := make(map[string]int)
+	var buildChemical func(chemical *chemical, amount int)
+	buildChemical = func(chemical *chemical, amount int) {
+		count := amount / chemical.produce
+		if amount%chemical.produce != 0 {
+			count++
+		}
+		for _, ingredient := range chemical.recipe {
+			storage[ingredient.chemical.name] -= ingredient.count * count
+			if ingredient.chemical.name != "ORE" {
+				if storage[ingredient.chemical.name] < 0 {
+					buildChemical(ingredient.chemical, storage[ingredient.chemical.name]*-1)
+				}
+			}
+		}
+		storage[chemical.name] += chemical.produce * count
+	}
+	buildChemical(d.chemicals["FUEL"], amount)
+	return storage["ORE"] * -1
+}
+
 func (d *Day14) Part1() (string, error) {
 	storage := make(map[string]int)
-	var buildChemical func(chemical *chemical, indent int)
-	buildChemical = func(chemical *chemical, indent int) {
+	var buildChemical func(chemical *chemical)
+	buildChemical = func(chemical *chemical) {
 		for _, ingredient := range chemical.recipe {
 			if ingredient.chemical.name != "ORE" {
 				for storage[ingredient.chemical.name] < ingredient.count {
-					buildChemical(ingredient.chemical, indent+1)
+					buildChemical(ingredient.chemical)
 				}
 			}
 			storage[ingredient.chemical.name] -= ingredient.count
 		}
 		storage[chemical.name] += chemical.produce
 	}
-	buildChemical(d.chemicals["FUEL"], 0)
-	return strconv.Itoa(storage["ORE"] * -1), nil
+	buildChemical(d.chemicals["FUEL"])
+	return strconv.Itoa(d.buildFuel(1)), nil
 }
 
 func (d *Day14) Part2() (string, error) {
-	return "", errors.New("todo")
+	return strconv.Itoa(sort.Search(10_000_000, func(i int) bool {
+		return d.buildFuel(i) >= 1_000_000_000_000
+	}) - 1), nil
 }
