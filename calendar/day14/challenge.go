@@ -82,20 +82,6 @@ func (d *Day14) buildFuel(amount int) int {
 }
 
 func (d *Day14) Part1() (string, error) {
-	storage := make(map[string]int)
-	var buildChemical func(chemical *chemical)
-	buildChemical = func(chemical *chemical) {
-		for _, ingredient := range chemical.recipe {
-			if ingredient.chemical.name != "ORE" {
-				for storage[ingredient.chemical.name] < ingredient.count {
-					buildChemical(ingredient.chemical)
-				}
-			}
-			storage[ingredient.chemical.name] -= ingredient.count
-		}
-		storage[chemical.name] += chemical.produce
-	}
-	buildChemical(d.chemicals["FUEL"])
 	return strconv.Itoa(d.buildFuel(1)), nil
 }
 
