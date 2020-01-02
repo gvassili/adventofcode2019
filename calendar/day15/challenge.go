@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"strconv"
 )
@@ -83,9 +82,6 @@ func toCoordinate(x, y int32) coordinate {
 	return coordinate(uint64(x)<<32 | (uint64(y) & 0xffffffff))
 }
 
-func (c coordinate) String() string {
-	return fmt.Sprintf("x: %d, y:%d", c.x(), c.y())
-}
 func (c coordinate) x() int32 {
 	return int32(c >> 32)
 }
