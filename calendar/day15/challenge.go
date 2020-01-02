@@ -5,11 +5,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/gdamore/tcell"
 	"io"
-	"os"
 	"strconv"
-	"time"
 )
 
 type Day15 struct {
@@ -115,114 +112,40 @@ func intToBool(i int) bool {
 	return true
 }
 
-/*
-
- */
-
-const (
-	offsetX = 22
-	offsetY = 22
-)
-
-func drawDrone(s tcell.Screen, c coordinate, o orientation) {
-	p := 'o'
-	switch o {
-	case 0:
-		p = '⬆'
-	case 1:
-		p = '⮕'
-	case 2:
-		p = '⬇'
-	case 3:
-		p = '⬅'
-
-	}
-	s.SetContent(int(c.x())+offsetX, int(c.y())+offsetY, p, nil, tcell.StyleDefault)
-}
-
-func drawWall(s tcell.Screen, c coordinate) {
-	s.SetContent(int(c.x())+offsetX, int(c.y())+offsetY, ' ', nil, tcell.StyleDefault.Background(tcell.ColorGray))
-}
-
-func drawEmpty(s tcell.Screen, c coordinate) {
-	s.SetContent(int(c.x())+offsetX, int(c.y())+offsetY, ' ', nil, tcell.StyleDefault.Background(tcell.ColorLightBlue))
-}
-
-func drawBack(s tcell.Screen, c coordinate, d int) {
-	if d == 0 {
-		s.SetContent(int(c.x())+offsetX, int(c.y())+offsetY, ' ', nil, tcell.StyleDefault.Background(tcell.ColorRed))
-	}
-	if d == 1 {
-		s.SetContent(int(c.x())+offsetX, int(c.y())+offsetY, ' ', nil, tcell.StyleDefault.Background(tcell.ColorGreen))
-	}
-	if d > 1 {
-		s.SetContent(int(c.x())+offsetX, int(c.y())+offsetY, ' ', nil, tcell.StyleDefault.Background(tcell.ColorDarkGreen))
-	}
-}
-
 func (d *Day15) Part1() (string, error) {
-	screen, _ := tcell.NewScreen()
-	if err := screen.Init(); err != nil {
-		panic(err)
-	}
-	inC, outC := make(chan int), make(chan int)
+	inC, outC := make(chan int, 1), make(chan int, 1)
 	go d.computer.exec(inC, outC)
 	var navigate func(c coordinate, o orientation) int
 	maze := make(mazeMap)
-	go func() {
-		for {
-			ev := screen.PollEvent()
-			e, ok := ev.(*tcell.EventKey)
-			if !ok {
-				continue
-			}
-			if ok && e.Key() == tcell.KeyESC {
-				screen.Clear()
-				screen.Fini()
-				os.Exit(1)
-			}
-			break
-		}
-	}()
 	navigate = func(c coordinate, o orientation) int {
 		inC <- o.toInput()
 		r := <-outC
 		maze[c] = intToBool(r)
-
-		//time.Sleep(time.Millisecond * 10)
-		distance := 0
 		if r == 0 {
-			drawWall(screen, c)
-			screen.Show()
 			return 0
 		} else if r == 2 {
-			distance++
+			return 1
 		}
-		drawEmpty(screen, c.move(o.backward()))
-		drawDrone(screen, c, o)
-		screen.Show()
-		for d, i := o, 0; i < 4 && distance == 0; i++ {
+		for d, i := o, 0; i < 4; i++ {
 			newC := c.move(d)
 			_, ok := maze[c.move(d)]
 			if !ok {
-				distance += navigate(newC, d)
+				dis := navigate(newC, d)
+				if dis != 0 {
+					return dis + 1
+				}
 			}
 			d = d.left()
 		}
-
 		inC <- o.backward().toInput()
 		<-outC
-		drawDrone(screen, c.move(o.backward()), o.backward())
-		drawBack(screen, c, distance)
-		screen.Show()
-		return distance
+		return 0
 	}
 	distance := 0
 	for o, i := orientation(0), 0; i < 4; i++ {
 		distance += navigate(toCoordinate(0, 0).move(o), o)
 		o = o.right()
 	}
-	time.Sleep(time.Minute)
 	return strconv.Itoa(distance), nil
 }
 

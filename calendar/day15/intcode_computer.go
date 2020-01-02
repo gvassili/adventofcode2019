@@ -2,7 +2,6 @@ package day15
 
 import (
 	"fmt"
-	"time"
 )
 
 const (
@@ -93,7 +92,6 @@ loop:
 			c.write(p1 * p2)
 		case opInp:
 			input := <-inC
-			time.Sleep(time.Millisecond * 15)
 			c.write(input)
 		case opOut:
 			output := c.read()
