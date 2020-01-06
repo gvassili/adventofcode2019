@@ -111,6 +111,7 @@ func intToBool(i int) bool {
 func (d *Day15) Part1() (string, error) {
 	inC, outC := make(chan int, 1), make(chan int, 1)
 	go d.computer.exec(inC, outC)
+	defer close(inC)
 	var navigate func(c coordinate, o orientation) int
 	maze := make(mazeMap)
 	navigate = func(c coordinate, o orientation) int {
@@ -124,8 +125,7 @@ func (d *Day15) Part1() (string, error) {
 		}
 		for d, i := o, 0; i < 4; i++ {
 			newC := c.move(d)
-			_, ok := maze[c.move(d)]
-			if !ok {
+			if _, ok := maze[c.move(d)]; !ok {
 				dis := navigate(newC, d)
 				if dis != 0 {
 					return dis + 1
@@ -145,6 +145,62 @@ func (d *Day15) Part1() (string, error) {
 	return strconv.Itoa(distance), nil
 }
 
+func max(lhs, rhs int) int {
+	if lhs > rhs {
+		return lhs
+	}
+	return rhs
+}
+
 func (d *Day15) Part2() (string, error) {
-	return "", nil
+	inC, outC := make(chan int, 1), make(chan int, 1)
+	go d.computer.exec(inC, outC)
+	defer close(inC)
+	var navigate func(c coordinate, o orientation) coordinate
+	maze := make(mazeMap)
+	navigate = func(c coordinate, o orientation) coordinate {
+		inC <- o.toInput()
+		r := <-outC
+		maze[c] = intToBool(r)
+		if r == 0 {
+			return 0
+		}
+		oxygenC := coordinate(0)
+		for d, i := o, 0; i < 4; i++ {
+			newC := c.move(d)
+			if _, ok := maze[c.move(d)]; !ok {
+				tmpOc := navigate(newC, d)
+				if tmpOc != 0 {
+					oxygenC = tmpOc
+				}
+			}
+			d = d.left()
+		}
+		inC <- o.backward().toInput()
+		<-outC
+		if r == 2 {
+			return c
+		}
+		return oxygenC
+	}
+	oxygenSystemC := coordinate(0)
+	for o, i := orientation(0), 0; i < 4; i++ {
+		tmpOc := navigate(toCoordinate(0, 0).move(o), o)
+		if tmpOc != 0 {
+			oxygenSystemC = tmpOc
+		}
+		o = o.right()
+	}
+	var leakOxygen func(c coordinate) int
+	leakOxygen = func(c coordinate) int {
+		if !maze[c] {
+			return 0
+		}
+		maze[c] = false
+		return max(
+			max(leakOxygen(c.move(0)), leakOxygen(c.move(1))),
+			max(leakOxygen(c.move(2)), leakOxygen(c.move(3))),
+		) + 1
+	}
+	return strconv.Itoa(leakOxygen(oxygenSystemC) - 1), nil
 }

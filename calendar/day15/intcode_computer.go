@@ -91,7 +91,10 @@ loop:
 			p1, p2 := c.read(), c.read()
 			c.write(p1 * p2)
 		case opInp:
-			input := <-inC
+			input, ok := <-inC
+			if !ok {
+				break loop
+			}
 			c.write(input)
 		case opOut:
 			output := c.read()
