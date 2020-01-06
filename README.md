@@ -7,10 +7,15 @@ go mod download
 go build
 ```
 ## Run
+run one day
 ```
-./adventofcode2019 dayN...
+./adventofcode2019 day01
 ```
-exemple:
+run multiple days
 ```
-./adventofcode2019 day1
+./adventofcode2019 day02 day03
+```
+run everything
+```
+./adventofcode2019
 ```
